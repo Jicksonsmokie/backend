@@ -7,16 +7,17 @@ const path = require("path");
 const app = express();
 const PORT = 5000;
 
-const corsOptions = {
-  origin: "http://localhost:3000",
-  methods: "GET,POST,PUT,DELETE",
-  allowedHeaders: "Content-Type,Authorization",
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 200
-};
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   methods: "GET,POST,PUT,DELETE",
+//   allowedHeaders: "Content-Type,Authorization",
+//   credentials: true,
+//   preflightContinue: false,
+//   optionsSuccessStatus: 200
+// };
+// app.use(cors(corsOptions));
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
