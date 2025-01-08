@@ -1,3 +1,4 @@
+process.env.YTDL_NO_UPDATE = 'true';
 const express = require("express");
 const axios = require('axios');
 const ytdl = require('ytdl-core');
@@ -7,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // const corsOptions = {
 //   origin: "http://localhost:3000",
@@ -73,7 +74,7 @@ app.post("/api/login", (req, res) => {
 });
 
 app.get('/api/download', async (req, res) => {
-  const videoUrl = req.query.url;
+  const videoUrl = decodeURIComponent(req.query.url); 
   if (!videoUrl) {
     return res.status(400).json({ error: 'URL is required' });
   }
@@ -86,7 +87,11 @@ app.get('/api/download', async (req, res) => {
       res.status(400).json({ error: 'Invalid video URL' });
     }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (err.statusCode === 410) {
+      res.status(410).json({ error: 'The video is no longer available.' });
+    } else {
+      res.status(500).json({ error: 'An error occurred while processing the video.' });
+    }
   }
 });
 
