@@ -1,4 +1,6 @@
 const express = require("express");
+const axios = require('axios');
+const ytdl = require('ytdl-core');
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
@@ -68,6 +70,24 @@ app.post("/api/login", (req, res) => {
   }
 
   res.status(200).json({ message: "Login successful!" });
+});
+
+app.get('/api/download', async (req, res) => {
+  const videoUrl = req.query.url;
+  if (!videoUrl) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
+
+  try {
+    if (ytdl.validateURL(videoUrl)) {
+      const info = await ytdl.getInfo(videoUrl);
+      res.json(info);
+    } else {
+      res.status(400).json({ error: 'Invalid video URL' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.listen(PORT, () => {
