@@ -103,25 +103,33 @@ app.post('/api/upload', (req, res) => {
     return res.status(400).send('Only JSON files are allowed');
   }
 
-  const savePath = path.join(DATA_FOLDER, jsonFile.name);
-
-  // Check if the file already exists
-  if (fs.existsSync(savePath)) {
-    try {
-      fs.unlinkSync(savePath); // Delete the existing file
-    } catch (err) {
-      return res.status(500).send('Error deleting existing file');
-    }
-  }
-
-  // Move the new file to the target location
-  jsonFile.mv(savePath, (err) => {
+  // Delete all JSON files in the DATA_FOLDER
+  fs.readdir(DATA_FOLDER, (err, files) => {
     if (err) {
-      return res.status(500).send('Error saving the file');
+      return res.status(500).send('Error reading directory');
     }
-    res.send('File uploaded successfully, replacing any existing file');
+
+    files
+      .filter((file) => path.extname(file) === '.json') // Filter JSON files
+      .forEach((file) => {
+        try {
+          fs.unlinkSync(path.join(DATA_FOLDER, file)); // Delete each JSON file
+        } catch (err) {
+          return res.status(500).send(`Error deleting file: ${file}`);
+        }
+      });
+
+    // Save the new file
+    const savePath = path.join(DATA_FOLDER, jsonFile.name);
+    jsonFile.mv(savePath, (err) => {
+      if (err) {
+        return res.status(500).send('Error saving the file');
+      }
+      res.send('All old JSON files deleted, and new file uploaded successfully');
+    });
   });
 });
+
 
 app.get('/api/data', (req, res) => {
   fs.readdir(DATA_FOLDER, (err, files) => {
