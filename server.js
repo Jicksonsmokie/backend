@@ -10,20 +10,13 @@ const fileUpload = require('express-fileupload');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const DATA_FOLDER = path.join(__dirname, 'data');
-// const corsOptions = {
-//   origin: "http://localhost:3000",
-//   methods: "GET,POST,PUT,DELETE",
-//   allowedHeaders: "Content-Type,Authorization",
-//   credentials: true,
-//   preflightContinue: false,
-//   optionsSuccessStatus: 200
-// };
-// app.use(cors(corsOptions));
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Users file path and utility functions
 const usersFilePath = path.join(__dirname, "users.json");
 
 const readUsers = () => {
@@ -39,16 +32,18 @@ const readUsers = () => {
   }
 };
 
-
 const writeUsers = (users) => {
   fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
 };
 
+// Ensure data folder exists
 if (!fs.existsSync(DATA_FOLDER)) {
   fs.mkdirSync(DATA_FOLDER);
 }
+
 app.use(fileUpload());
 
+// User Registration Endpoint
 app.post("/api/register", (req, res) => {
   const { username, email, password } = req.body;
   const users = readUsers();
@@ -65,6 +60,7 @@ app.post("/api/register", (req, res) => {
   res.status(200).json({ message: "User registered successfully!" });
 });
 
+// User Login Endpoint
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
   const users = readUsers();
@@ -78,8 +74,10 @@ app.post("/api/login", (req, res) => {
   res.status(200).json({ message: "Login successful!" });
 });
 
+// YouTube Video Info Endpoint
 app.get('/api/download', async (req, res) => {
-  const videoUrl = decodeURIComponent(req.query.url); 
+  const videoUrl = decodeURIComponent(req.query.url);
+  
   if (!videoUrl) {
     return res.status(400).json({ error: 'URL is required' });
   }
@@ -100,46 +98,48 @@ app.get('/api/download', async (req, res) => {
   }
 });
 
+// File Upload Endpoint
 app.post('/api/upload', (req, res) => {
   if (!req.files || !req.files.jsonFile) {
-      return res.status(400).send('No file uploaded');
+    return res.status(400).send('No file uploaded');
   }
 
   const jsonFile = req.files.jsonFile;
 
   if (path.extname(jsonFile.name) !== '.json') {
-      return res.status(400).send('Only JSON files are allowed');
+    return res.status(400).send('Only JSON files are allowed');
   }
 
   const savePath = path.join(DATA_FOLDER, jsonFile.name);
 
   jsonFile.mv(savePath, (err) => {
-      if (err) {
-          return res.status(500).send(err);
-      }
-      res.send('File uploaded successfully');
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.send('File uploaded successfully');
   });
 });
 
-// API to list all JSON data
+// Fetch all stored JSON files
 app.get('/api/data', (req, res) => {
   fs.readdir(DATA_FOLDER, (err, files) => {
-      if (err) {
-          return res.status(500).send(err);
-      }
+    if (err) {
+      return res.status(500).send(err);
+    }
 
-      const jsonData = files
-          .filter(file => path.extname(file) === '.json')
-          .map(file => {
-              const filePath = path.join(DATA_FOLDER, file);
-              const fileContent = fs.readFileSync(filePath);
-              return JSON.parse(fileContent);
-          });
+    const jsonData = files
+      .filter(file => path.extname(file) === '.json')
+      .map(file => {
+        const filePath = path.join(DATA_FOLDER, file);
+        const fileContent = fs.readFileSync(filePath);
+        return JSON.parse(fileContent);
+      });
 
-      res.json(jsonData);
+    res.json(jsonData);
   });
 });
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
