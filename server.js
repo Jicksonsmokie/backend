@@ -87,7 +87,7 @@ app.get('/api/download', async (req, res) => {
     if (err.statusCode === 410) {
       res.status(410).json({ error: "410"+err.message });
     } else {
-      res.status(500).json({ error: 'An error occurred while processing the video.' });
+      res.status(500).json({ error: "500"+err.message});
     }
   }
 });
