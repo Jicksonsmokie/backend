@@ -85,12 +85,18 @@ app.get('/api/download', async (req, res) => {
     }
   } catch (err) {
     if (err.statusCode === 410) {
-      res.status(410).json({ error: 'The video is no longer available.' });
+      res.status(410).json({ error: err.message });
     } else {
       res.status(500).json({ error: 'An error occurred while processing the video.' });
     }
   }
 });
+
+
+
+
+
+
 
 app.post('/api/upload', (req, res) => {
   if (!req.files || !req.files.jsonFile) {
@@ -103,7 +109,6 @@ app.post('/api/upload', (req, res) => {
     return res.status(400).send('Only JSON files are allowed');
   }
 
-  // Delete all JSON files in the DATA_FOLDER
   fs.readdir(DATA_FOLDER, (err, files) => {
     if (err) {
       return res.status(500).send('Error reading directory');
