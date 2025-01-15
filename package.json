@@ -15,6 +15,10 @@
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+<<<<<<< HEAD
+=======
+    "express-fileupload": "^1.5.1",
+>>>>>>> b02c1bb (Your commit message)
     "fs": "^0.0.1-security",
     "ytdl-core": "^4.11.5"
   },

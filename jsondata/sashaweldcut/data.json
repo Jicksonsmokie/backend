@@ -1,0 +1,38 @@
+{"data":{
+"CategoryName":"Welding Machine",
+"CategoryID":"0001",
+"SubCategory":[{
+"SubCategoryName":"H Beam Assembly Welding Machine",
+"Price":"15 Lakh/Piece",
+"Waranty":"1 Year",
+"OutputCurrent":"0-100 A",
+"Frequency":"50 Hz",
+"Voltage":"280 V",
+"Material":"MS",
+"AutomationGrade":"Automatic",
+"PowerSource":"Electric",
+"CountryofOrigin":"Made in India"
+},{
+"SubCategoryName":"H Beam Assembly Welding Machine-1",
+"Price":"28 Lakh/Piece",
+"Waranty":"1 Year",
+"OutputCurrent":"100-200 A",
+"Frequency":"50 Hz",
+"Voltage":"280 V",
+"Material":"MS",
+"AutomationGrade":"Semi-Automatic",
+"PowerSource":"Electric",
+"CountryofOrigin":"Made in India"
+},{
+"SubCategoryName":"Peb Beam Welding Machine",
+"Price":"48 Lakh/Piece",
+"Waranty":"1 Year",
+"OutputCurrent":"0-100 A",
+"Frequency":"50 Hz",
+"Voltage":"280 V",
+"Material":"MS",
+"AutomationGrade":"Semi-Automatic",
+"PowerSource":"Electric",
+"CountryofOrigin":"Made in India"
+}]
+}}

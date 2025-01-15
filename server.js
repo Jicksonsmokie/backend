@@ -6,10 +6,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
-
+const fileUpload = require('express-fileupload');
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+const DATA_FOLDER = path.join(__dirname, 'data');
 // const corsOptions = {
 //   origin: "http://localhost:3000",
 //   methods: "GET,POST,PUT,DELETE",
@@ -43,6 +43,11 @@ const readUsers = () => {
 const writeUsers = (users) => {
   fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
 };
+
+if (!fs.existsSync(DATA_FOLDER)) {
+  fs.mkdirSync(DATA_FOLDER);
+}
+app.use(fileUpload());
 
 app.post("/api/register", (req, res) => {
   const { username, email, password } = req.body;
@@ -93,6 +98,46 @@ app.get('/api/download', async (req, res) => {
       res.status(500).json({ error: 'An error occurred while processing the video.' });
     }
   }
+});
+
+app.post('/api/upload', (req, res) => {
+  if (!req.files || !req.files.jsonFile) {
+      return res.status(400).send('No file uploaded');
+  }
+
+  const jsonFile = req.files.jsonFile;
+
+  if (path.extname(jsonFile.name) !== '.json') {
+      return res.status(400).send('Only JSON files are allowed');
+  }
+
+  const savePath = path.join(DATA_FOLDER, jsonFile.name);
+
+  jsonFile.mv(savePath, (err) => {
+      if (err) {
+          return res.status(500).send(err);
+      }
+      res.send('File uploaded successfully');
+  });
+});
+
+// API to list all JSON data
+app.get('/api/data', (req, res) => {
+  fs.readdir(DATA_FOLDER, (err, files) => {
+      if (err) {
+          return res.status(500).send(err);
+      }
+
+      const jsonData = files
+          .filter(file => path.extname(file) === '.json')
+          .map(file => {
+              const filePath = path.join(DATA_FOLDER, file);
+              const fileContent = fs.readFileSync(filePath);
+              return JSON.parse(fileContent);
+          });
+
+      res.json(jsonData);
+  });
 });
 
 app.listen(PORT, () => {
