@@ -11,12 +11,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const DATA_FOLDER = path.join(__dirname, 'data');
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Users file path and utility functions
 const usersFilePath = path.join(__dirname, "users.json");
 
 const readUsers = () => {
@@ -36,14 +34,12 @@ const writeUsers = (users) => {
   fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
 };
 
-// Ensure data folder exists
 if (!fs.existsSync(DATA_FOLDER)) {
-  fs.mkdirSync(DATA_FOLDER);
+  fs.mkdirSync(DATA_FOLDER, { recursive: true });
 }
 
 app.use(fileUpload());
 
-// User Registration Endpoint
 app.post("/api/register", (req, res) => {
   const { username, email, password } = req.body;
   const users = readUsers();
@@ -60,7 +56,6 @@ app.post("/api/register", (req, res) => {
   res.status(200).json({ message: "User registered successfully!" });
 });
 
-// User Login Endpoint
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
   const users = readUsers();
@@ -74,7 +69,6 @@ app.post("/api/login", (req, res) => {
   res.status(200).json({ message: "Login successful!" });
 });
 
-// YouTube Video Info Endpoint
 app.get('/api/download', async (req, res) => {
   const videoUrl = decodeURIComponent(req.query.url);
   
@@ -98,7 +92,6 @@ app.get('/api/download', async (req, res) => {
   }
 });
 
-// File Upload Endpoint
 app.post('/api/upload', (req, res) => {
   if (!req.files || !req.files.jsonFile) {
     return res.status(400).send('No file uploaded');
@@ -112,15 +105,24 @@ app.post('/api/upload', (req, res) => {
 
   const savePath = path.join(DATA_FOLDER, jsonFile.name);
 
+  // Check if the file already exists
+  if (fs.existsSync(savePath)) {
+    try {
+      fs.unlinkSync(savePath); // Delete the existing file
+    } catch (err) {
+      return res.status(500).send('Error deleting existing file');
+    }
+  }
+
+  // Move the new file to the target location
   jsonFile.mv(savePath, (err) => {
     if (err) {
-      return res.status(500).send(err);
+      return res.status(500).send('Error saving the file');
     }
-    res.send('File uploaded successfully');
+    res.send('File uploaded successfully, replacing any existing file');
   });
 });
 
-// Fetch all stored JSON files
 app.get('/api/data', (req, res) => {
   fs.readdir(DATA_FOLDER, (err, files) => {
     if (err) {
@@ -139,7 +141,6 @@ app.get('/api/data', (req, res) => {
   });
 });
 
-// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
